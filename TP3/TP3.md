@@ -124,6 +124,11 @@ Marcel :
 
 - utilisez la commande `tcpdump` pour réaliser une capture de trame
 - videz vos tables ARP, sur les deux machines, puis effectuez un `ping`
+```
+sudo tcpdump -w tp3_arp.pcapng
+
+ping 10.3.1.11
+```
 
 🦈 **Capture réseau `tp3_arp.pcapng`** qui contient un ARP request et un ARP reply
 
@@ -155,22 +160,96 @@ Vous aurez besoin de 3 VMs pour cette partie. **Réutilisez les deux VMs précé
 
 > Cette étape est nécessaire car Rocky Linux c'est pas un OS dédié au routage par défaut. Ce n'est bien évidemment une opération qui n'est pas nécessaire sur un équipement routeur dédié comme du matériel Cisco.
 
+```
+[Adryx@localhost ~]$ sudo firewall-cmd --list-all
+[sudo] password for Adryx:
+public (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: enp0s8 enp0s9
+  sources:
+  services: cockpit dhcpv6-client ssh
+  ports:
+  protocols:
+  forward: yes
+  masquerade: no
+  forward-ports:
+  source-ports:
+  icmp-blocks:
+  rich rules:
+[Adryx@localhost ~]$ sudo firewall-cmd --get-active-zone
+public
+  interfaces: enp0s8 enp0s9
+[Adryx@localhost ~]$ sudo firewall-cmd --add-masquerade --zone=public
+success
+[Adryx@localhost ~]$ sudo firewall-cmd --add-masquerade --zone=public --permanent
+success
+[Adryx@localhost ~]$
+```
+
+
 🌞**Ajouter les routes statiques nécessaires pour que `john` et `marcel` puissent se `ping`**
 
 - il faut taper une commande `ip route add` pour cela, voir mémo
 - il faut ajouter une seule route des deux côtés
 - une fois les routes en place, vérifiez avec un `ping` que les deux machines peuvent se joindre
 
+```
+10.3.1.0/24 via 10.3.2.254 dev enp0s8 proto static metric 100
+10.3.2.0/24 dev enp0s8 proto kernel scope link src 10.3.2.12 metric 100
+```
+```
+[Adryx@localhost ~]$ ping 10.3.2.12
+PING 10.3.2.12 (10.3.2.12) 56(84) bytes of data.
+64 bytes from 10.3.2.12: icmp_seq=1 ttl=63 time=0.568 ms
+64 bytes from 10.3.2.12: icmp_seq=2 ttl=63 time=0.710 ms
+64 bytes from 10.3.2.12: icmp_seq=3 ttl=63 time=0.453 ms
+^C
+--- 10.3.2.12 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2044ms
+rtt min/avg/max/mdev = 0.453/0.577/0.710/0.105 ms
+```
+
 ![THE SIZE](./pics/thesize.png)
 
 ### 2. Analyse de trames
 
 🌞**Analyse des échanges ARP**
+```
+Connection to 10.3.1.11 closed.
+PS C:\Users\happy cash> scp Adryx@10.3.1.11:/home/Adryx/2.pcap           .
+Adryx@10.3.1.11's password:
+2.pcap
+```
 
 - videz les tables ARP des trois noeuds
+```
+sudo ip neigh flush all 
+```
+
 - effectuez un `ping` de `john` vers `marcel`
+```
+[Adryx@localhost ~]$ ping 10.3.1.11
+PING 10.3.1.11 (10.3.1.11) 56(84) bytes of data.
+64 bytes from 10.3.1.11: icmp_seq=1 ttl=63 time=0.689 ms
+64 bytes from 10.3.1.11: icmp_seq=2 ttl=63 time=0.575 ms
+64 bytes from 10.3.1.11: icmp_seq=3 ttl=63 time=0.452 ms
+64 bytes from 10.3.1.11: icmp_seq=4 ttl=63 time=0.553 ms
+64 bytes from 10.3.1.11: icmp_seq=5 ttl=63 time=0.470 ms
+64 bytes from 10.3.1.11: icmp_seq=6 ttl=63 time=0.406 ms
+64 bytes from 10.3.1.11: icmp_seq=7 ttl=63 time=0.454 ms
+^C
+--- 10.3.1.11 ping statistics ---
+7 packets transmitted, 7 received, 0% packet loss, time 6753ms
+rtt min/avg/max/mdev = 0.406/0.514/0.689/0.090 ms
+``` 
+
 - regardez les tables ARP des trois noeuds
 - essayez de déduire un peu les échanges ARP qui ont eu lieu
+```
+He pense que ducoup Un request vas etre envoyé au rooter et le reply seras envoyé par celui ci car il gere la conexion entre les LAN'S
+```
+
 - répétez l'opération précédente (vider les tables, puis `ping`), en lançant `tcpdump` sur `marcel`
 - **écrivez, dans l'ordre, les échanges ARP qui ont eu lieu, puis le ping et le pong, je veux TOUTES les trames** utiles pour l'échange
 
@@ -181,8 +260,8 @@ Par exemple (copiez-collez ce tableau ce sera le plus simple) :
 | 1     | Requête ARP | x         | `marcel` `AA:BB:CC:DD:EE` | x              | Broadcast `FF:FF:FF:FF:FF` |
 | 2     | Réponse ARP | x         | ?                       | x              | `marcel` `AA:BB:CC:DD:EE`    |
 | ...   | ...         | ...       | ...                     |                |                            |
-| ?     | Ping        | ?         | ?                       | ?              | ?                          |
-| ?     | Pong        | ?         | ?                       | ?              | ?                          |
+| 1    | Ping        | ?         | ?                       | ?              | ?                          |
+| 2     | Pong        | ?         | ?                       | ?              | ?                          |
 
 > Vous pourriez, par curiosité, lancer la capture sur `john` aussi, pour voir l'échange qu'il a effectué de son côté.
 
@@ -196,9 +275,71 @@ Par exemple (copiez-collez ce tableau ce sera le plus simple) :
 - ajoutez une route par défaut à `john` et `marcel`
   - vérifiez que vous avez accès internet avec un `ping`
   - le `ping` doit être vers une IP, PAS un nom de domaine
+  ```
+  [Adryx@localhost ~]$ sudo ip route add default via 10.3.2.254
+[sudo] password for Adryx:
+[Adryx@localhost ~]$ ping 1.1.1.1
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=53 time=25.4 ms
+64 bytes from 1.1.1.1: icmp_seq=2 ttl=53 time=23.4 ms
+64 bytes from 1.1.1.1: icmp_seq=3 ttl=53 time=23.4 ms
+64 bytes from 1.1.1.1: icmp_seq=4 ttl=53 time=28.6 ms
+64 bytes from 1.1.1.1: icmp_seq=5 ttl=53 time=26.1 ms
+64 bytes from 1.1.1.1: icmp_seq=6 ttl=53 time=22.9 ms
+64 bytes from 1.1.1.1: icmp_seq=7 ttl=53 time=28.4 ms
+64 bytes from 1.1.1.1: icmp_seq=8 ttl=53 time=23.2 ms
+^C
+--- 1.1.1.1 ping statistics ---
+8 packets transmitted, 8 received, 0% packet loss, time 7148ms
+rtt min/avg/max/mdev = 22.898/25.174/28.588/2.189 ms`
+```
+
 - donnez leur aussi l'adresse d'un serveur DNS qu'ils peuvent utiliser
   - vérifiez que vous avez une résolution de noms qui fonctionne avec `dig`
   - puis avec un `ping` vers un nom de domaine
+  ```
+  [Adryx@localhost ~]$ sudo cat /etc/resolv.conf
+# Generated by NetworkManager
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+nameserver 1.1.1.1
+[Adryx@localhost ~]$ curl gitlan.com
+^[[A[Adryx@localhost dig gitlab.com
+
+; <<>> DiG 9.16.23-RH <<>> gitlab.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 22366
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;gitlab.com.                    IN      A
+
+;; ANSWER SECTION:
+gitlab.com.             65      IN      A       172.65.251.78
+
+;; Query time: 27 msec
+;; SERVER: 8.8.8.8#53(8.8.8.8)
+;; WHEN: Mon Oct 24 12:13:36 CEST 2022
+;; MSG SIZE  rcvd: 55
+
+[Adryx@localhost ~]$ ^C
+[Adryx@localhost ~]$ ping gitlab.com
+PING gitlab.com (172.65.251.78) 56(84) bytes of data.
+64 bytes from 172.65.251.78 (172.65.251.78): icmp_seq=1 ttl=53 time=23.6 ms
+64 bytes from 172.65.251.78 (172.65.251.78): icmp_seq=2 ttl=53 time=23.7 ms
+64 bytes from 172.65.251.78 (172.65.251.78): icmp_seq=3 ttl=53 time=22.8 ms
+64 bytes from 172.65.251.78 (172.65.251.78): icmp_seq=4 ttl=53 time=24.5 ms
+64 bytes from 172.65.251.78 (172.65.251.78): icmp_seq=5 ttl=53 time=23.8 ms
+^C
+--- gitlab.com ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 4198ms
+rtt min/avg/max/mdev = 22.755/23.652/24.455/0.546 ms
+[Adryx@localhost ~]$
+```
+
 
 🌞**Analyse de trames**
 
@@ -206,10 +347,10 @@ Par exemple (copiez-collez ce tableau ce sera le plus simple) :
 - capturez le ping depuis `john` avec `tcpdump`
 - analysez un ping aller et le retour qui correspond et mettez dans un tableau :
 
-| ordre | type trame | IP source          | MAC source              | IP destination | MAC destination |     |
-|-------|------------|--------------------|-------------------------|----------------|-----------------|-----|
-| 1     | ping       | `marcel` `10.3.1.12` | `marcel` `AA:BB:CC:DD:EE` | `8.8.8.8`      | ?               |     |
-| 2     | pong       | ...                | ...                     | ...            | ...             | ... |
+| ordre | type trame | IP source                | MAC source                | IP destination | MAC destination    |     |
+|-------|------------|--------------------------|---------------------------|----------------|--------------------|-----|
+| 1     | ping       | `john` `10.3.1.11`       | `john` `08:00:27:d1:a8:6f`| `8.8.8.8`      |  08:00:27:11:ae:99 |     |
+| 2     | pong       | 'rooter' '10.3.1.254'    | 08:00:27:11:ae:99         | ...            | ...                | ... |
 
 🦈 **Capture réseau `tp3_routage_internet.pcapng`**
 
