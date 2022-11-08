@@ -491,4 +491,6 @@ Nom :    node1.tp4.b1
 Address:  10.4.1.11
 ```
 
+IMPORTANT == Un pote m'as aidé pour le faire j'ai galéré Voila et les screen c'est l'est sienne 
+
 🦈 **Capture d'une requête DNS vers le nom `node1.tp4.b1` ainsi que la réponse**
