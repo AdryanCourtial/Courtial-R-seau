@@ -83,6 +83,21 @@ Le principe est simple :
 - définissez les IPs statiques sur tous les VPCS
 - vérifiez avec des `ping` que tout le monde se ping
 
+```
+PC3> ip 10.5.10.3
+Checking for duplicate address...
+PC3 : 10.5.10.3 255.255.255.0
+
+PC3> ping 10.5.10.2
+
+84 bytes from 10.5.10.2 icmp_seq=1 ttl=64 time=0.153 ms
+84 bytes from 10.5.10.2 icmp_seq=2 ttl=64 time=0.783 ms
+84 bytes from 10.5.10.2 icmp_seq=3 ttl=64 time=0.347 ms
+84 bytes from 10.5.10.2 icmp_seq=4 ttl=64 time=0.348 ms
+84 bytes from 10.5.10.2 icmp_seq=5 ttl=64 time=0.264 ms
+```
+
+
 🌞 **Configuration des VLANs**
 
 - référez-vous [à la section VLAN du mémo Cisco](../../cours/memo/memo_cisco.md#8-vlan)
@@ -90,10 +105,46 @@ Le principe est simple :
 - ajout des ports du switches dans le bon VLAN (voir [le tableau d'adressage de la topo 2 juste au dessus](#2-adressage-topologie-2))
   - ici, tous les ports sont en mode *access* : ils pointent vers des clients du réseau
 
+```
+1    default                          active    Et0/1, Et0/2, Et0/3, Et1/2
+                                                Et1/3, Et2/0, Et2/1, Et2/2
+                                                Et2/3, Et3/0, Et3/1, Et3/2
+                                                Et3/3
+10   Admin                            active    Et0/0
+20   Guests                           active    Et1/0, Et1/1
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+```
+
 🌞 **Vérif**
 
 - `pc1` et `pc2` doivent toujours pouvoir se ping
+
+```
+PC2> ping 10.5.10.1
+
+84 bytes from 10.5.10.1 icmp_seq=1 ttl=64 time=0.205 ms
+84 bytes from 10.5.10.1 icmp_seq=2 ttl=64 time=0.239 ms
+84 bytes from 10.5.10.1 icmp_seq=3 ttl=64 time=0.357 ms
+84 bytes from 10.5.10.1 icmp_seq=4 ttl=64 time=0.251 ms
+^C
+PC2>
+```
+
 - `pc3` ne ping plus personne
+```
+PC3> ping 10.5.10.1
+
+host (10.5.10.1) not reachable
+
+PC3> ping 10.5.10.2
+
+host (10.5.10.2) not reachable
+
+PC3>
+```
 
 # III. Routing
 
