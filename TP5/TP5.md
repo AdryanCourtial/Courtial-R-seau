@@ -195,12 +195,63 @@ L'adresse des machines au sein de ces réseaux :
 
 - définissez les IPs statiques sur toutes les machines **sauf le *routeur***
 
+```
+enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:6c:3d:3a brd ff:ff:ff:ff:ff:ff
+    inet 10.5.30.1/24 brd 10.5.30.255 scope global noprefixroute enp0s3
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:fe6c:3d3a/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
 🌞 **Configuration des VLANs**
 
 - référez-vous au [mémo Cisco](../../cours/memo/memo_cisco.md#8-vlan)
 - déclaration des VLANs sur le switch `sw1`
 - ajout des ports du switches dans le bon VLAN (voir [le tableau d'adressage de la topo 2 juste au dessus](#2-adressage-topologie-2))
+```
+IOU1#show vlan
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Et0/2, Et0/3, Et1/2, Et1/3
+                                                Et2/0, Et2/1, Et2/2, Et2/3
+                                                Et3/0, Et3/1, Et3/2, Et3/3
+10   Guest                            active    Et1/0, Et1/1
+20   Admin                            active    Et0/0
+30   servers                          active    Et0/1
+```
+
 - il faudra ajouter le port qui pointe vers le *routeur* comme un *trunk* : c'est un port entre deux équipements réseau (un *switch* et un *routeur*)
+
+```
+IOU1#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IOU1(config)#interface Ethernet3/3
+IOU1(config-if)#switchport trunk encapsulation dot1q
+IOU1(config-if)#switchport mode trunk
+*Nov 13 19:57:46.854: %LINEPROTO-5-UPDOWN: Line protocol on Interface Ethernet3/3, changed state to up
+IOU1(config-if)#switchport trunk allowed vlan add 10,20,30
+IOU1(config-if)#exit
+IOU1(config)#exit
+IOU1#
+*Nov 13 19:58:09.083: %SYS-5-CONFIG_I: Configured from console by console
+IOU1#show int
+IOU1#show interfaces trunk
+
+Port        Mode             Encapsulation  Status        Native vlan
+Et3/3       on               802.1q         trunking      1
+
+Port        Vlans allowed on trunk
+Et3/3       1-4094
+
+Port        Vlans allowed and active in management domain
+Et3/3       1,10,20,30
+
+Port        Vlans in spanning tree forwarding state and not pruned
+Et3/3       none
+IOU1#
+```
 
 ---
 
