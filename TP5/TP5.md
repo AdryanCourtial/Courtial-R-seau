@@ -265,24 +265,26 @@ IOU1#
 
 Pour ce faire, un exemple. On attribue deux IPs `192.168.1.254/24` VLAN 10 et `192.168.2.254` VLAN 20 à un *routeur*. L'interface concernée sur le *routeur* est `fastEthernet 0/0` :
 
-```cisco
-# conf t
-
-(config)# interface fastEthernet 0/0.10
-R1(config-subif)# encapsulation dot1Q 10
-R1(config-subif)# ip addr 192.168.1.254 255.255.255.0 
-R1(config-subif)# exit
-
-(config)# interface fastEthernet 0/0.20
-R1(config-subif)# encapsulation dot1Q 20
-R1(config-subif)# ip addr 192.168.2.254 255.255.255.0 
-R1(config-subif)# exit
-```
-
 🌞 **Config du *routeur***
 
 - attribuez ses IPs au *routeur*
   - 3 sous-interfaces, chacune avec son IP et un VLAN associé
+  ```
+  R1(config)#interface fastEthernet0/0.10
+R1(config-subif)#encapsulation dot1Q 10
+R1(config-subif)#ip addr 10.5.10.254 255.255.255.0
+R1(config-subif)#exit
+R1(config)#interface fastEthernet0/0.20
+R1(config-subif)#encapsulation dot1Q 20
+R1(config-subif)#ip addr 10.5.20.254 255.255.255.0
+R1(config-subif)#exit
+R1(config)#int
+R1(config)#interface fest
+R1(config)#interface fa
+R1(config)#interface fastEthernet0/0.30
+R1(config-subif)#encapsulation dot1Q 30
+R1(config-subif)#ip addr 10.5.30.254 255.255.255.0
+```
 
 🌞 **Vérif**
 
