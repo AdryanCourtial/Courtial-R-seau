@@ -1,6 +1,6 @@
-# Partie 1
+## Partie 1
 
-## 🌞 Partitionner le disque à l'aide de LVM
+# 🌞 Partitionner le disque à l'aide de LVM
 
 ```
 [Adryx@Adryx ~]$ lsblk
@@ -114,8 +114,35 @@ sudo lvs
   Read ahead sectors     auto
   - currently set to     256
   Block device           253:2
-
-[Adryx@Adryx ~]$
 ```
 
-## 🌞 Formater la partition
+[Adryx@Adryx ~]$
+
+# 🌞 Formater la partition
+
+```
+[Adryx@Adryx ~]$ mkfs -t ext4 /dev/storage/web_data
+mke2fs 1.46.5 (30-Dec-2021)
+mkfs.ext4: Permission denied while trying to determine filesystem size
+[Adryx@Adryx ~]$ sudo !!
+sudo mkfs -t ext4 /dev/storage/web_data
+[sudo] password for Adryx:
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 523264 4k blocks and 130816 inodes
+Filesystem UUID: e42633ac-4a1e-4c94-9b9c-be0a2014b5b6
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (8192 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+[Adryx@Adryx ~]$
+
+```
+# 🌞 Monter la partition
+
+
+
+
