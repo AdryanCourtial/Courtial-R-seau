@@ -269,7 +269,7 @@ Pour ce faire, un exemple. On attribue deux IPs `192.168.1.254/24` VLAN 10 et `1
 
 - attribuez ses IPs au *routeur*
   - 3 sous-interfaces, chacune avec son IP et un VLAN associé
-  ```
+```
   R1(config)#interface fastEthernet0/0.10
 R1(config-subif)#encapsulation dot1Q 10
 R1(config-subif)#ip addr 10.5.10.254 255.255.255.0
@@ -289,6 +289,7 @@ R1(config-subif)#ip addr 10.5.30.254 255.255.255.0
 🌞 **Vérif**
 
 - tout le monde doit pouvoir ping le routeur sur l'IP qui est dans son réseau
+
 - en ajoutant une route vers les réseaux, ils peuvent se ping entre eux
   - ajoutez une route par défaut sur les VPCS
   - ajoutez une route par défaut sur la machine virtuelle
