@@ -1,6 +1,6 @@
-## Partie 1
+# Partie 1
 
-# 🌞 Partitionner le disque à l'aide de LVM
+## 🌞 Partitionner le disque à l'aide de LVM
 
 ```
 [Adryx@Adryx ~]$ lsblk
@@ -118,7 +118,7 @@ sudo lvs
 
 [Adryx@Adryx ~]$
 
-# 🌞 Formater la partition
+## 🌞 Formater la partition
 
 ```
 [Adryx@Adryx ~]$ mkfs -t ext4 /dev/storage/web_data
@@ -141,8 +141,56 @@ Writing superblocks and filesystem accounting information: done
 [Adryx@Adryx ~]$
 
 ```
-# 🌞 Monter la partition
 
+## 🌞 Monter la partition
 
+```
+[Adryx@Adryx ~]$ mkdir /mnt/storage
+mkdir: cannot create directory ‘/mnt/storage’: Permission denied
+[Adryx@Adryx ~]$ sudo !!
+sudo mkdir /mnt/storage
+[Adryx@Adryx ~]$ mount /dev/storage/web_data /mnt/storage/
+mount: /mnt/storage: must be superuser to use mount.
+[Adryx@Adryx ~]$ sudo !!
+[Adryx@Adryx ~]$ df -h
+Filesystem                    Size  Used Avail Use% Mounted on
+devtmpfs                      462M     0  462M   0% /dev
+tmpfs                         481M     0  481M   0% /dev/shm
+tmpfs                         193M  3.0M  190M   2% /run
+/dev/mapper/rl-root           6.2G  1.2G  5.1G  18% /
+/dev/sda1                    1014M  210M  805M  21% /boot
+tmpfs                          97M     0   97M   0% /run/user/1000
+/dev/mapper/storage-web_data  2.0G   24K  1.9G   1% /mnt/storage
+[Adryx@Adryx ~]$ mount | grep ext4
+/dev/mapper/storage-web_data on /mnt/storage type ext4 (rw,relatime,seclabel)
+[Adryx@Adryx ~]$
+```
 
+```
+[Adryx@Adryx ~]$ sudo nano  /etc/fstab
+[Adryx@Adryx ~]$ sudo umount /mnt/storage/
+[Adryx@Adryx ~]$
+[Adryx@Adryx ~]$
+[Adryx@Adryx ~]$
+[Adryx@Adryx ~]$ sudo mount -a
+mount: /etc/fstab: parse error at line 15 -- ignored
+[Adryx@Adryx ~]$ sudo mount -av
+mount: /etc/fstab: parse error at line 15 -- ignored
+/                        : ignored
+/boot                    : already mounted
+none                     : ignored
+[Adryx@Adryx ~]$ sudo vim  /etc/fstab
+[Adryx@Adryx ~]$
+[Adryx@Adryx ~]$
+[Adryx@Adryx ~]$
+[Adryx@Adryx ~]$ sudo mount -av
+/                        : ignored
+/boot                    : already mounted
+none                     : ignored
+mount: /mnt/storage does not contain SELinux labels.
+       You just mounted a file system that supports labels which does not
+       contain labels, onto an SELinux box. It is likely that confined
+       applications will generate AVC messages and not be allowed access to
+       this file system.  For more details see restorecon(8) and mount(8).
+```
 
