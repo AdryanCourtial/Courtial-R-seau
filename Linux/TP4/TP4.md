@@ -194,3 +194,148 @@ mount: /mnt/storage does not contain SELinux labels.
        this file system.  For more details see restorecon(8) and mount(8).
 ```
 
+
+# PARTIE 2
+
+🌞 Donnez les commandes réalisées sur le serveur NFS storage.tp4.linux
+
+```
+[Adryx@Storage ~]$ sudo dnf install nfs-utils
+```
+```
+[Adryx@Storage ~]$ sudo mkdir /storage/site_web_1 -p
+[Adryx@Storage ~]$ sudo mkdir /storage/site_web_2 -p
+[Adryx@Storage ~]$ ls
+storage
+[Adryx@Storage ~]$ cd st
+-bash: cd: st: No such file or directory
+[Adryx@Storage ~]$ cd storage/
+[Adryx@Storage storage]$ ls
+site_web_1  site_web_2
+[Adryx@Storage storage]$ ls -al
+total 0
+drwxr-xr-x. 4 Adryx Adryx 42 Jan 16 15:24 .
+drwx------. 3 Adryx Adryx 98 Jan 10 17:03 ..
+drwxr-xr-x. 2 root  root   6 Jan 16 15:24 site_web_1
+drwxr-xr-x. 2 root  root   6 Jan 16 15:24 site_web_2
+[Adryx@Storage storage]$ sudo chown Adryx site_web_1 site_web_2
+[Adryx@Storage storage]$ ls -al
+total 0
+drwxr-xr-x. 4 Adryx Adryx 42 Jan 16 15:24 .
+drwx------. 3 Adryx Adryx 98 Jan 10 17:03 ..
+drwxr-xr-x. 2 Adryx root   6 Jan 16 15:24 site_web_1
+drwxr-xr-x. 2 Adryx root   6 Jan 16 15:24 site_web_2
+[Adryx@Storage storage]$
+```
+
+```
+ nano /etc/exports
+[Adryx@Storage storage]$ sudo !!
+sudo nano /etc/exports
+[Adryx@Storage storage]$
+```
+
+```
+sudo systemctl enable nfs-server
+[sudo] password for Adryx:
+Created symlink /etc/systemd/system/multi-user.target.wants/nfs-server.service → /usr/lib/systemd/system/nfs-server.service.
+[Adryx@Storage ~]$ sudo systemctl start nfs-server
+[Adryx@Storage ~]$ sudo systemctl status nfs-server
+● nfs-server.service - NFS server and services
+     Loaded: loaded (/usr/lib/systemd/system/nfs-server.service; enabled; vendor preset: disabled)
+    Drop-In: /run/systemd/generator/nfs-server.service.d
+             └─order-with-mounts.conf
+     Active: active (exited) since Mon 2023-01-16 15:37:02 CET; 12s ago
+    Process: 11393 ExecStartPre=/usr/sbin/exportfs -r (code=exited, status=1/FAILURE)
+    Process: 11394 ExecStart=/usr/sbin/rpc.nfsd (code=exited, status=0/SUCCESS)
+    Process: 11412 ExecStart=/bin/sh -c if systemctl -q is-active gssproxy; then systemctl reload gssproxy ; fi (code=e>
+   Main PID: 11412 (code=exited, status=0/SUCCESS)
+        CPU: 23ms
+
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: No options for GNU /etc/exports: suggest /etc/exports(sync) to avoid>
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: Invalid IP address /etc/exports
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: Invalid IP address /etc/exports
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: No options for GNU Modified: suggest Modified(sync) to avoid warning
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: Failed to resolve Modified
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: Failed to resolve Modified
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: Failed to stat /storage/site_web_2: No such file or directory
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: Failed to stat /storage/site_web_1: No such file or directory
+Jan 16 15:37:02 Storage exportfs[11393]: exportfs: Failed to stat GNU: No such file or directory
+Jan 16 15:37:02 Storage systemd[1]: Finished NFS server and services.
+```
+
+```
+[Adryx@Storage ~]$ sudo firewall-cmd --permanent --list-all | grep services
+  services: cockpit dhcpv6-client nfs ssh
+```
+
+```
+[Adryx@Storage ~]$ sudo firewall-cmd --permanent --add-service=nfs
+success
+[Adryx@Storage ~]$ sudo firewall-cmd --permanent --add-service=mountd
+success
+[Adryx@Storage ~]$ sudo firewall-cmd --permanent --add-service=rpc-bind
+success
+[Adryx@Storage ~]$ sudo firewall-cmd --reload
+success
+[Adryx@Storage ~]$
+```
+
+🌞 Donnez les commandes réalisées sur le client NFS web.tp4.linux
+```
+[Adryx@Web ~]$ sudo dnf install nfs-utils
+```
+
+```
+[Adryx@Web ~]$ sudo mkdir -p /var/www/site_web_1
+[sudo] password for Adryx:
+[Adryx@Web ~]$ sudo mkdir -p /var/www/site_web_2
+[Adryx@Web ~]$ sudo chown Adryx /var/www/site_web_1 /var/www/site_web_2
+[Adryx@Web ~]$ ls -al
+total 12
+drwx------. 2 Adryx Adryx  62 Oct 13 11:05 .
+drwxr-xr-x. 3 root  root   19 Oct 13 11:05 ..
+-rw-r--r--. 1 Adryx Adryx  18 May 16  2022 .bash_logout
+-rw-r--r--. 1 Adryx Adryx 141 May 16  2022 .bash_profile
+-rw-r--r--. 1 Adryx Adryx 492 May 16  2022 .bashrc
+[Adryx@Web ~]$
+```
+```
+[Adryx@Web ~]$ sudo mount 10.3.2.10:/storage/site_web_1 /var/www/site_web_1
+[Adryx@Web ~]$
+[Adryx@Web ~]$ sudo mount 10.3.2.10:/storage/site_web_1 /var/www/site_web_1
+[Adryx@Web ~]$ df -h
+Filesystem                     Size  Used Avail Use% Mounted on
+devtmpfs                       462M     0  462M   0% /dev
+tmpfs                          481M     0  481M   0% /dev/shm
+tmpfs                          193M  3.0M  190M   2% /run
+/dev/mapper/rl-root            6.2G  1.2G  5.1G  18% /
+/dev/sda1                     1014M  210M  805M  21% /boot
+tmpfs                           97M     0   97M   0% /run/user/1000
+10.3.2.10:/storage/site_web_1  6.2G  1.2G  5.1G  18% /var/www/site_web_1
+[Adryx@Web ~]$
+[Adryx@Web ~]$
+[Adryx@Web ~]$ sudo mount 10.3.2.10:/storage/site_web_2 /var/www/site_web_2
+[Adryx@Web ~]$ df -h
+Filesystem                     Size  Used Avail Use% Mounted on
+devtmpfs                       462M     0  462M   0% /dev
+tmpfs                          481M     0  481M   0% /dev/shm
+tmpfs                          193M  3.0M  190M   2% /run
+/dev/mapper/rl-root            6.2G  1.2G  5.1G  18% /
+/dev/sda1                     1014M  210M  805M  21% /boot
+tmpfs                           97M     0   97M   0% /run/user/1000
+10.3.2.10:/storage/site_web_1  6.2G  1.2G  5.1G  18% /var/www/site_web_1
+10.3.2.10:/storage/site_web_2  6.2G  1.2G  5.1G  18% /var/www/site_web_2
+```
+# PARTIT 3
+
+```
+ps -ef | grep XGINX
+Adryx       2488     848  0 17:13 pts/0    00:00:00 grep --color=auto XGINX
+```
+
+```
+[Adryx@Web site_web_1]$ ss | grep nfs
+tcp   ESTAB  0      0                        10.3.2.13:iscsi        10.3.2.10:nfs
+```
+
