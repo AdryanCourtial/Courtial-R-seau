@@ -905,6 +905,150 @@ Complete!
 [Adryx@Web ~]$
 ```
 
+🌞 Install de tous les modules PHP nécessaires pour NextCloud
+
+```
+[Adryx@Web ~]$ sudo dnf install -y libxml2 openssl php81-php php81-php-ctype php81-php-curl php81-php-gd php81-php-iconv php81-php-json php81-php-libxml php81-php-mbstring php81-php-openssl php81-php-posix php81-php-session php81-php-xml php81-php-zip php81-php-zlib php81-php-pdo php81-php-mysqlnd php81-php-intl php81-php-bcmath php81-php-gmp
+```
+
+🌞 Récupérer NextCloud
+
+```
+j'ai instlé NextCloud sur mon PC a moi pouis je les SCP copy (c'est la seul facon que j'ai trouvé sans utilisé Curl car j'ai pas tout compris x)
+
+PS C:\Users\happy cash> scp nextcloud.zip Adryx@10.105.1.11:/home/Adryx
+Adryx@10.105.1.11's password:
+nextcloud.zip                                                                         100%  168MB  93.8MB/s   00:01
+PS C:\Users\happy cash>
+
+[Adryx@Web ~]$ ls /home/Adryx/
+d  nextcloud.zip
+[Adryx@Web ~]$ dnf provides unzip
+Last metadata expiration check: 0:32:31 ago on Tue 31 Jan 2023 17:04:15 CET.
+unzip-6.0-56.el9.x86_64 : A utility for unpacking zip files
+Repo        : baseos
+Matched from:
+Provide    : unzip = 6.0-56.el9
+
+[Adryx@Web ~]$ sudo dnf install unzip
+[sudo] password for Adryx:
+Last metadata expiration check: 0:32:26 ago on Tue 31 Jan 2023 17:04:36 CET.
+Dependencies resolved.
+========================================================================================================================
+ Package                   Architecture               Version                          Repository                  Size
+========================================================================================================================
+Installing:
+ unzip                     x86_64                     6.0-56.el9                       baseos                     180 k
+
+Transaction Summary
+========================================================================================================================
+Install  1 Package
+
+Total download size: 180 k
+Installed size: 392 k
+Is this ok [y/N]: y
+Downloading Packages:
+unzip-6.0-56.el9.x86_64.rpm                                                             845 kB/s | 180 kB     00:00
+------------------------------------------------------------------------------------------------------------------------
+Total                                                                                   338 kB/s | 180 kB     00:00
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                                                                1/1
+  Installing       : unzip-6.0-56.el9.x86_64                                                                        1/1
+  Running scriptlet: unzip-6.0-56.el9.x86_64                                                                        1/1
+  Verifying        : unzip-6.0-56.el9.x86_64                                                                        1/1
+
+Installed:
+  unzip-6.0-56.el9.x86_64
+
+Complete!
+[Adryx@Web ~]$ unzip nextcloud
+..
+..
+..
+..
+[Adryx@Web ~]$ ls
+d  nextcloud  nextcloud.zip
+[Adryx@Web ~]$ cp nextcloud /var/www/tp5_nextcloud/
+cp: -r not specified; omitting directory 'nextcloud'
+[Adryx@Web ~]$ cp nextcloud /var/www/tp5_nextcloud/ -r
+cp: cannot create directory '/var/www/tp5_nextcloud/nextcloud': Permission denied
+[Adryx@Web ~]$ cp nextcloud /var/www/tp5_nextcloud
+cp: -r not specified; omitting directory 'nextcloud'
+[Adryx@Web ~]$ sudo nextcloud /var/www/
+cgi-bin/       html/          tp5_nextcloud/
+[Adryx@Web ~]$ sudo nextcloud /var/www/tp5_nextcloud/
+sudo: nextcloud: command not found
+[Adryx@Web ~]$ sudo cp nextcloud /var/www/tp5_nextcloud/
+cp: -r not specified; omitting directory 'nextcloud'
+[Adryx@Web ~]$ sudo cp nextcloud /var/www/tp5_nextcloud/ -r
+[Adryx@Web ~]$ cd /var/www/tp5_nextcloud/nextcloud
+[Adryx@Web tp5_nextcloud]$ cd nextcloud/
+[Adryx@Web nextcloud]$ ls
+3rdparty  config       core      index.html  occ           ocs-provider  resources   themes
+apps      console.php  cron.php  index.php   ocm-provider  public.php    robots.txt  updater
+AUTHORS   COPYING      dist      lib         ocs           remote.php    status.php  version.php
+[Adryx@Web ~]$[Adryx@Web nextcloud]$ mv * cd ..
+mv: cannot move '3rdparty' to '../3rdparty': Permission denied
+mv: cannot move 'apps' to '../apps': Permission denied
+mv: cannot move 'AUTHORS' to '../AUTHORS': Permission denied
+mv: cannot move 'config' to '../config': Permission denied
+mv: cannot move 'console.php' to '../console.php': Permission denied
+mv: cannot move 'COPYING' to '../COPYING': Permission denied
+mv: cannot move 'core' to '../core': Permission denied
+mv: cannot move 'cron.php' to '../cron.php': Permission denied
+mv: cannot move 'dist' to '../dist': Permission denied
+mv: cannot move 'index.html' to '../index.html': Permission denied
+mv: cannot move 'index.php' to '../index.php': Permission denied
+mv: cannot move 'lib' to '../lib': Permission denied
+mv: cannot move 'occ' to '../occ': Permission denied
+mv: cannot move 'ocm-provider' to '../ocm-provider': Permission denied
+mv: cannot move 'ocs' to '../ocs': Permission denied
+mv: cannot move 'ocs-provider' to '../ocs-provider': Permission denied
+mv: cannot move 'public.php' to '../public.php': Permission denied
+mv: cannot move 'remote.php' to '../remote.php': Permission denied
+mv: cannot move 'resources' to '../resources': Permission denied
+mv: cannot move 'robots.txt' to '../robots.txt': Permission denied
+mv: cannot move 'status.php' to '../status.php': Permission denied
+mv: cannot move 'themes' to '../themes': Permission denied
+mv: cannot move 'updater' to '../updater': Permission denied
+mv: cannot move 'version.php' to '../version.php': Permission denied
+mv: cannot stat 'cd': No such file or directory
+[Adryx@Web nextcloud]$ sudo !!
+sudo mv * cd ..
+[sudo] password for Adryx:
+mv: cannot stat 'cd': No such file or directory
+[Adryx@Web nextcloud]$ ls
+[Adryx@Web nextcloud]$ cd ..
+[Adryx@Web tp5_nextcloud]$ ls
+3rdparty  config       core      index.html  nextcloud     ocs           remote.php  status.php  version.php
+apps      console.php  cron.php  index.php   occ           ocs-provider  resources   themes
+AUTHORS   COPYING      dist      lib         ocm-provider  public.php    robots.txt  updater
+[Adryx@Web tp5_nextcloud]$ sudo rm nextcloud/
+rm: cannot remove 'nextcloud/': Is a directory
+[Adryx@Web tp5_nextcloud]$ sudo rm nextcloud/ -r
+[Adryx@Web tp5_nextcloud]$ ls
+3rdparty  config       core      index.html  occ           ocs-provider  resources   themes
+apps      console.php  cron.php  index.php   ocm-provider  public.php    robots.txt  updater
+AUTHORS   COPYING      dist      lib         ocs           remote.php    status.php  version.php
+[Adryx@Web www]$ sudo chown apache tp5_nextcloud/
+[sudo] password for Adryx:
+[Adryx@Web www]$ ls -al
+total 8
+drwxr-xr-x.  5 root   root   54 Jan 31 17:25 .
+drwxr-xr-x. 20 root   root 4096 Jan 17 12:12 ..
+drwxr-xr-x.  2 root   root    6 Nov 16 08:11 cgi-bin
+drwxr-xr-x.  2 root   root    6 Nov 16 08:11 html
+drwxr-xr-x. 14 apache root 4096 Jan 31 17:51 tp5_nextcloud
+[Adryx@Web www]$
+```
+
+
+
+
 
 
 
